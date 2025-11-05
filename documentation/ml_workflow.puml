@@ -1,0 +1,119 @@
+@startuml TomatoGuard ML Workflow
+
+package "Image Classification Workflow" {
+  start
+  
+  :Upload image file;
+  :Display image preview;
+  
+  :Load TensorFlow.js Model;
+  note right
+    - Load model.json
+    - Load weight files (shards)
+    - Initialize model architecture
+  end note
+  
+  :Image Preprocessing;
+  note right
+    Steps:
+    1. Convert image to tensor
+       (tf.browser.fromPixels)
+    2. Normalize pixel values
+       (1.0 - img/255.0)
+    3. Add batch dimension
+       (expandDims(0))
+    4. Resize to 224x224
+       (resizeBilinear)
+  end note
+  
+  :Run Model Prediction;
+  :Get output probabilities array;
+  
+  :Post-processing;
+  note right
+    - Find index with max probability
+    - Calculate confidence percentage
+    - Map index to disease ID
+  end note
+  
+  :Retrieve disease information;
+  note right
+    - Get disease name
+    - Get symptoms, cause
+    - Get prevention tips
+    - Get treatment options
+    - Get references
+  end note
+  
+  :Display results;
+  stop
+}
+
+package "Object Detection Workflow" {
+  start
+  
+  :User enables webcam;
+  :Request camera permission;
+  :Initialize webcam stream;
+  
+  :Load Roboflow Model;
+  note right
+    Authentication:
+    - API Key: rf_IFsWxkQvH2fVforkhmsTrQExKzB2
+    - Model: tomato-leaf-diseases
+    - Version: 1
+  end note
+  
+  :Start detection loop (50ms interval);
+  
+  repeat
+    :Capture video frame;
+    :Run object detection;
+    :Get predictions with:
+      - Bounding boxes
+      - Class labels
+      - Confidence scores;
+    
+    :Map class slugs to disease IDs;
+    :Draw bounding boxes on canvas;
+    :Update DescCard with results;
+  repeat while (Webcam active?)
+  
+  :Stop detection loop;
+  :Release camera;
+  stop
+}
+
+package "Model Details" {
+  rectangle "Image Classification Model" {
+    + Input: 224x224 RGB image
+    + Output: 10 probability scores
+    + Classes: 10 diseases
+    + Format: TensorFlow.js (.json + .bin)
+  }
+  
+  rectangle "Object Detection Model" {
+    + Input: Video frame
+    + Output: Bounding boxes + classes
+    + Provider: Roboflow API
+    + Format: Cloud-based model
+  }
+}
+
+package "Disease Classes" {
+  rectangle Diseases {
+    + 0: Bacterial Spot
+    + 1: Early Blight
+    + 2: Late Blight
+    + 3: Leaf Mold
+    + 4: Septoria Leaf Spot
+    + 5: Spider Mites
+    + 6: Target Spot
+    + 7: Yellow Leaf Curl Virus
+    + 8: Mosaic Virus
+    + 9: Healthy
+  }
+}
+
+@enduml
+

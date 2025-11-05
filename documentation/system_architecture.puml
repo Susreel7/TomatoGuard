@@ -1,0 +1,88 @@
+@startuml TomatoGuard System Architecture
+
+!define RECTANGLE class
+
+package "User Interface Layer" {
+  [Browser] as Browser
+  [React Application] as ReactApp
+}
+
+package "Frontend Components" {
+  [Homepage Component] as Homepage
+  [Classify Component] as ClassifyPage
+  [ImageCard Component] as ImageCard
+  [DescCard Component] as DescCard
+  [Navigation Component] as Nav
+  [Features Component] as Features
+  [About Component] as About
+  [Footer Component] as Footer
+}
+
+package "Data Layer" {
+  [Diseases Data] as DiseasesData
+  [Disease Information] as DiseaseInfo
+}
+
+package "Machine Learning Layer" {
+  [TensorFlow.js] as TFJS
+  [Image Classification Model] as ClassificationModel
+  [Roboflow API] as RoboflowAPI
+  [Object Detection Model] as DetectionModel
+}
+
+package "Input Methods" {
+  [File Upload] as FileUpload
+  [Webcam Capture] as Webcam
+  [Canvas Element] as Canvas
+}
+
+package "Model Storage" {
+  [TF.js Model Files] as ModelFiles
+  note right of ModelFiles
+    - model.json
+    - group1-shard1of3.bin
+    - group1-shard2of3.bin
+    - group1-shard3of3.bin
+  end note
+}
+
+' Relationships
+Browser --> ReactApp : HTTP Request
+ReactApp --> Homepage : Route "/"
+ReactApp --> ClassifyPage : Route "/classify"
+
+Homepage --> Nav
+Homepage --> Features
+Homepage --> About
+Homepage --> Footer
+
+ClassifyPage --> ImageCard
+ClassifyPage --> DescCard
+ClassifyPage --> DiseasesData
+
+ImageCard --> FileUpload : User selects image
+ImageCard --> Webcam : User enables camera
+Webcam --> Canvas : Real-time detection overlay
+
+ClassifyPage --> TFJS : Image Classification
+ClassifyPage --> RoboflowAPI : Object Detection
+
+TFJS --> ClassificationModel : Load model
+ClassificationModel --> ModelFiles : Read model files
+ModelFiles --> ModelFiles : Load weights
+
+RoboflowAPI --> DetectionModel : Load via API
+RoboflowAPI ..> RoboflowAPI : Authenticate with API key
+
+ClassificationModel --> DiseaseInfo : Predict disease class
+DetectionModel --> DiseaseInfo : Detect disease regions
+
+DiseaseInfo --> DiseasesData : Map ID to disease info
+DescCard --> DiseaseInfo : Display results
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+@enduml
+

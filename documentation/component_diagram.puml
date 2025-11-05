@@ -1,0 +1,145 @@
+@startuml TomatoGuard Component Diagram
+
+package "React Application" {
+  component [App.jsx] as App {
+    + switch(window.location.pathname)
+    + render component based on route
+  }
+  
+  component [index.js] as Index {
+    + ReactDOM.createRoot()
+    + render App component
+  }
+}
+
+package "Pages" {
+  component [Homepage.jsx] as Homepage {
+    + render Home component
+    + render Features component
+    + render About component
+    + render Footer component
+    + render Navigation component
+  }
+  
+  component [Classify.jsx] as Classify {
+    + state: progress, imgPreview, predict
+    + state: webcam, loadWebcam
+    + preProcess(image)
+    + classify()
+    + handleInput(e)
+    + getDetection()
+    + loadModel()
+    + runDetection()
+    + renderDetection()
+  }
+}
+
+package "Components" {
+  component [ImageCard.jsx] as ImageCard {
+    + props: handleInput, imgPreview, handleClick
+    + props: progressState, useWebcam, handleWebcam
+    + props: webcamRef, canvasRef, loadWebcam
+    + render file upload UI
+    + render webcam feed
+    + render analyze button
+  }
+  
+  component [DescCard.jsx] as DescCard {
+    + props: progressState, result
+    + render idle state
+    + render processing state
+    + render error state
+    + render results with disease info
+  }
+  
+  component [Home.jsx] as Home {
+    + render hero section
+    + render feature highlights
+    + render CTA buttons
+  }
+  
+  component [Navigation.jsx] as Nav {
+    + state: activeLink, scrolled
+    + handle scroll events
+    + render navigation menu
+  }
+  
+  component [Features.jsx] as Features {
+    + render carousel with features
+  }
+  
+  component [About.jsx] as About {
+    + render about section
+  }
+  
+  component [Footer.jsx] as Footer {
+    + render footer with social links
+  }
+}
+
+package "Data & Services" {
+  component [diseases.js] as Diseases {
+    + array of 10 disease objects
+    + each disease contains:
+      - id, slug, name
+      - symptoms, cause
+      - prevention array
+      - treatment array
+      - references array
+  }
+  
+  component [TensorFlow.js] as TFJS {
+    + tf.loadLayersModel()
+    + tf.browser.fromPixels()
+    + tf.image.resizeBilinear()
+    + model.predict()
+    + tf.tidy()
+  }
+  
+  component [Roboflow API] as Roboflow {
+    + roboflow.auth()
+    + getAuth.load()
+    + model.detect()
+  }
+}
+
+package "External Dependencies" {
+  component [React] as React
+  component [React Router] as Router
+  component [React Bootstrap] as Bootstrap
+  component [React Webcam] as WebcamLib
+  component [Tailwind CSS] as Tailwind
+}
+
+' Relationships
+App --> Homepage : renders
+App --> Classify : renders
+Index --> App : renders
+
+Homepage --> Home : uses
+Homepage --> Features : uses
+Homepage --> About : uses
+Homepage --> Footer : uses
+Homepage --> Nav : uses
+
+Classify --> ImageCard : uses
+Classify --> DescCard : uses
+Classify --> Diseases : imports
+Classify --> TFJS : uses
+Classify --> Roboflow : uses
+
+DescCard --> Diseases : imports
+
+ImageCard --> WebcamLib : uses
+
+Homepage --> Bootstrap : uses
+Nav --> Bootstrap : uses
+Footer --> Bootstrap : uses
+
+Homepage --> Tailwind : styles
+Classify --> Tailwind : styles
+ImageCard --> Tailwind : styles
+DescCard --> Tailwind : styles
+
+@enduml
+

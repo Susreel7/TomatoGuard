@@ -1,0 +1,90 @@
+@startuml TomatoGuard Workflow
+
+start
+
+:User accesses application;
+if (User navigates to Homepage?) then (yes)
+  :Display Homepage with Navigation,
+  Features, About, Footer;
+  if (User clicks "Detect Disease Now"?) then (yes)
+    :Navigate to /classify;
+  else (no)
+    :Stay on Homepage;
+  endif
+endif
+
+:User on Classify Page;
+:Choose input method;
+
+if (Input Method?) then (File Upload)
+  :User selects image file;
+  :Create object URL from file;
+  :Display image preview in ImageCard;
+  :User clicks "Analyze Disease" button;
+  
+  fork
+    :Set progress state to 'process';
+    :Load TensorFlow.js model
+    (model.json + weights);
+  fork again
+    :Preprocess image:
+    - Convert to tensor
+    - Normalize pixel values
+    - Resize to 224x224
+    - Add batch dimension;
+  end fork
+  
+  :Run model prediction;
+  :Get probability array;
+  :Find index with maximum probability;
+  :Calculate confidence percentage;
+  
+  :Map disease ID to disease information;
+  :Set progress state to 'finish';
+  :Display results in DescCard:
+    - Disease name
+    - Confidence score
+    - Cause
+    - Symptoms
+    - Prevention tips
+    - Treatment options
+    - References;
+    
+else (Webcam)
+  :User enables webcam toggle;
+  :Request camera access;
+  :Display webcam feed;
+  
+  :Load Roboflow model:
+    - Authenticate with API key
+    - Load "tomato-leaf-diseases" model
+    - Version 1;
+  
+  :Start detection loop (every 50ms);
+  
+  repeat
+    :Capture frame from webcam;
+    :Run object detection on frame;
+    :Get predictions with bounding boxes;
+    :Map disease classes to disease IDs;
+    :Draw bounding boxes on canvas overlay;
+    :Display detected diseases in DescCard;
+  repeat while (Webcam active?) is (yes)
+  
+  :User disables webcam;
+  :Stop detection loop;
+  :Release camera resources;
+endif
+
+if (Error occurred?) then (yes)
+  :Set progress state to 'error';
+  :Display error message;
+  :User can retry;
+else (no)
+  :Display successful results;
+endif
+
+stop
+
+@enduml
+
